@@ -9,3 +9,11 @@ Stack:
 3. npm (babel-polyfill, sass, uglifyjs);
 4. https://csscompressor.com/;
 5. NativeJS (including grid, flexbox);
+
+
+supported and tested on:
+- yandex browser
+- Edge
+- Chrome
+- Mozilla Firefox
+- mobile device (android, more 10 mobile device)
