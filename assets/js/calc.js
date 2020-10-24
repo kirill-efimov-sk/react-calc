@@ -5,17 +5,18 @@ var story = Array();
 var pattern = /[0-9]/;
 var patternNew = /\*|\+|\-|\/|×|÷/;
 var patternNan = /\*|\/|/;
-var inputElem = document.getElementsByTagName('input');
-var newElem = document.getElementsByTagName('button');
+var patternDot = /\./;
+var inputElem = document.querySelector('input');
+var newElem = document.querySelectorAll('button');
 
 
 //вызов события с клавиатуры
 document.addEventListener('keydown', function attach(e) {
   var val = e.key;
-  if (patternNew.test(val)==true) {
+  if (patternNew.test(val)) {
     param = false;
   };
-  if ((patternNew.test(val)==true || val == '.' && val !== '=' || val == 'Enter' || val.match(/CE|Backspace|C|c|С|с/) || pattern.test(val) == true) && val.includes('F') == false) {
+  if ((patternNew.test(val) || val == '.' && val !== '=' || val == 'Enter' || val.match(/CE|Backspace|C|c|С|с/) || pattern.test(val)) && val.includes('F') == false) {
     main(val.replace('Enter','=').replace('Backspace','CE').replace('С', 'C').replace('с', 'C').replace('c', 'C'));
   };
   //DETACH
@@ -47,14 +48,15 @@ function hoverWork(w) {
 };
 //вызов функции после исключения
 function err(oldValue) {
-  inputElem[0].value = oldValue;
+  inputElem.classList.remove('font-micro');
+  inputElem.value = oldValue;
 };
 
 
 //-------------------------------------------------------------
 // функция принимает значение кнопки или ключ клавиши
 function main(value) {
-  var operation = inputElem[0].value;
+  var operation = inputElem.value;
   var storyElem = document.getElementsByClassName('history');
   //уменьшаем шрифт в поле input при переполнении
   font(inputElem);
@@ -78,35 +80,42 @@ function main(value) {
       try {
           // вычисляем значение строки
           // это возможно благодаря методу 'eval' (полезный метод .toFixed(N))
-          if (inputElem[0].value!=='') {
-            //если это не деление на ноль
-            if (inputElem[0].value.includes('÷0')!==true) {
-              inputElem[0].value = eval(operation.replace('÷','/').replace('×','*'));
-              story.push(operation.replace('÷','/').replace('×','*')+'='+inputElem[0].value);
-            } else {
-              var oldValue = inputElem[0].value;
-              inputElem[0].value ='недопустимая операция';
-              // сохраняем значение поля
-              setTimeout(err, 750, oldValue);
-            }
-            
-            if (story.length>2){
-              storyElem[0].textContent =story[2]; story.length=0;
-            }
-            else if (story.length==1) {
-              storyElem[0].textContent = storyElem[0].textContent+','+story;
-              var checkParam = storyElem[0].textContent.slice(0,1);
-              if (checkParam==',') {storyElem[0].textContent=storyElem[0].textContent.replace(',', '')}
-            }
-            else {
-              storyElem[0].textContent = story;
-            };
-          } else {inputElem[0].value ='';};
-          param = true;
+          if (patternNew.test(inputElem.value)) {
+            if (inputElem.value!=='') {
+              //если это не деление на ноль
+              if (!inputElem.value.includes('÷0')) {
+                if (patternDot.test(inputElem.value.slice(-1))) {inputElem.value = eval(operation.replace('÷','/').replace('×','*')).toFixed(5);}
+                else {inputElem.value = eval(operation.replace('÷','/').replace('×','*'));}
+                font(inputElem);
+                story.push(operation.replace('÷','/').replace('×','*')+'='+inputElem.value);
+              } else {
+                var oldValue = inputElem.value;
+                inputElem.classList.add('font-micro')
+                inputElem.value ='недопустимая операция';
+                // сохраняем значение поля
+                setTimeout(err, 750, oldValue);
+              }
+              
+              if (story.length>2){
+                storyElem[0].textContent =story[2]; story.length=0;
+              }
+              else if (story.length==1) {
+                storyElem[0].textContent = storyElem[0].textContent+', '+story;
+                var checkParam = storyElem[0].textContent.slice(0,1);
+                if (checkParam==',') {storyElem[0].textContent=storyElem[0].textContent.replace(',', '')}
+              }
+              else {
+                storyElem[0].textContent = story;
+              };
+            } else {inputElem.value ='';};
+            param = true;
+          } else {
+            return false;
+          }
       // если операцию выполнить невозможно
       } catch {
           // сохраняем значение поля
-          inputElem[0].value = inputElem[0].value;
+          inputElem.value = inputElem.value;
       };
 
   //-------------------------------------------------------------  
@@ -114,71 +123,112 @@ function main(value) {
   } else if (value.match(/C|c|С|с/) && value!=='CE') {
       // очищаем поле
       story = [];
-      inputElem[0].value = '';
+      inputElem.value = '';
       storyElem[0].textContent = story;
-      inputElem[0].classList.remove('font-micro');
-      inputElem[0].classList.remove('font-min');
+      inputElem.classList.remove('font-micro');
+      inputElem.classList.remove('font-min');
   
   //-------------------------------------------------------------
   // если нажат символ 'СЕ' или Backspace
   } else if (value.match(/CE|Backspace/)) {
       // уменьшаем строку на один символ
-      inputElem[0].value = operation.substring(0, operation.length - 1);
+      inputElem.value = operation.substring(0, operation.length - 1);
       font(inputElem);
   
   //-------------------------------------------------------------  
   // если нажата любая другая кнопка или клавиша
   } else {
+    var arrayStr = inputElem.value.split('');
+    var arrayLen = arrayStr.length;
+    var indexes = [];
+    if (arrayLen>0) {
+      var indexSbtrY = arrayStr.indexOf('-');
+      while (indexSbtrY != -1) { // пока значение переменной index не будет равно -1
+        indexes.push(indexSbtrY); // с использованием метода push() добавляем в переменную indexes значение переменной index
+        indexSbtrY = arrayStr.indexOf('-',indexSbtrY+ 1); // изменяем значение переменной путем поиска необходимого элемента далее в массиве (если найден - индекс элемента, если нет то -1)
+      }
+      var indexSbtrP = arrayStr.indexOf('+');
+      while (indexSbtrP != -1) { // пока значение переменной index не будет равно -1
+        indexes.push(indexSbtrP); // с использованием метода push() добавляем в переменную indexes значение переменной index
+        indexSbtrP = arrayStr.indexOf('+',indexSbtrP+ 1); // изменяем значение переменной путем поиска необходимого элемента далее в массиве (если найден - индекс элемента, если нет то -1)
+      }
+      for (i=0; i<indexes.length;i++) {
+        var firstNumber = indexes[0];
+        var secondNumber = indexes[i];
+        var endNumber = firstNumber;
+        if (firstNumber<secondNumber) {
+          endNumber = secondNumber;
+        }
+      }
+    }
     // записываем значение в поле
     //если первое значение не цифра, то не вводим его в input
-    var checkSymbol = pattern.test(value);
-    if (checkSymbol == false && inputElem[0].value == '') {inputElem[0].value = '0'+value; return false};
-
+    if (!pattern.test(value) && inputElem.value == '') {inputElem.value = '0'+value; return false};
     //далее штатная обработка
     //если прошлая операция была посчитана, т.е. нажато равно:
     if (param == true) {
       //если пользователь решил изменить символ с + на - или наоборот
       if (value == '±') {
-        if (inputElem[0].value.includes('-')==true){inputElem[0].value = inputElem[0].value.replace('-','+');}
-        else if (inputElem[0].value.includes('+')==true){inputElem[0].value = inputElem[0].value.replace('+','-');}
-        //если в строке нет ни +, ни -
-        else {inputElem[0].value = -inputElem[0].value};
+        if (arrayLen>2 && endNumber!==undefined && endNumber!==0) {
+          if (arrayStr[endNumber].includes('-')){arrayStr.splice(endNumber,1,'+');inputElem.value = arrayStr.join('');}
+          else if (arrayStr[endNumber].includes('+')){arrayStr.splice(endNumber,1,'-');inputElem.value = arrayStr.join('');}
+        } else {
+          if (inputElem.value.includes('-')){inputElem.value = inputElem.value.replace('-','');}
+          else if (inputElem.value.includes('+')){inputElem.value = inputElem.value.replace('+','-');}
+          //если в строке нет ни +, ни -
+          else {inputElem.value = -inputElem.value};
+        }
       } else {
-        //в противном случае добавляем новое значение, затирая предыдущие
-        inputElem[0].value = value.replace('/','÷').replace('*','×');
+        //если в строке что-то есть - добавялем в конец строки новое значение
+        if (inputElem.value.length>0) {inputElem.value += value.replace('/','÷').replace('*','×');}
+         //в противном случае добавляем новое значение, затирая предыдущие
+        else {inputElem.value = value.replace('/','÷').replace('*','×');};  
       };
       param = false; 
     } else {
       //если равно в прошлой операции не выбиралось (если нажато равно param = true)
       //если пользователь решил изменить символ с + на - или наоборот
       if (value == '±') {
-        if (inputElem[0].value.includes('-')==true){inputElem[0].value = inputElem[0].value.replace('-','+');}
-        else if (inputElem[0].value.includes('+')==true){inputElem[0].value = inputElem[0].value.replace('+','-');}
-        //если в строке нет ни +, ни -
-        else if (inputElem[0].value.includes("÷")!==true && inputElem[0].value.includes("×")!==true) {
-          inputElem[0].value = -inputElem[0].value
+        if (arrayLen>2 && endNumber!==undefined && endNumber!==0) {
+          if (arrayStr[endNumber].includes('-')){arrayStr.splice(endNumber,1,'+');inputElem.value = arrayStr.join('');}
+          else if (arrayStr[endNumber].includes('+')){arrayStr.splice(endNumber,1,'-');inputElem.value = arrayStr.join('');}
+        } else {
+          if (inputElem.value.includes('-')){inputElem.value = inputElem.value.replace('-','');}
+          else if (inputElem.value.includes('+')){inputElem.value = inputElem.value.replace('+','-');}
+          //если в строке нет ни +, ни -
+          else if (!inputElem.value.includes("÷") && !inputElem.value.includes("×")) {
+            inputElem.value = -inputElem.value
+          };
         };
+      //Если это не ±, то здесь вводим все символы в input
       } else {
         //split('').reverse().join('');
-        var strElem = inputElem[0].value.slice(-1);
-        var strLength = inputElem[0].value.length;
+        var strElem = inputElem.value.slice(-1);
+        var strLength = inputElem.value.length;
         //если в строке последним уже присутсвует математический символ нужно проверить какой и при вводе нового - заменить на него
-        if (patternNew.test(inputElem[0].value.slice(-1))==true) {
+        if (patternNew.test(inputElem.value.slice(-1)) || patternDot.test(inputElem.value.slice(-1))) {
           var subStr = value.replace('÷','/').replace('×','*');
-          var test = inputElem[0].value.slice(0,strLength-1)
           if (pattern.test(subStr) == false) {
-            var str = inputElem[0].value.slice(0,strLength-1)+inputElem[0].value.slice(-1).replace(strElem,value);
-            inputElem[0].value = str;
+            var str = inputElem.value.slice(0,strLength-1)+inputElem.value.slice(-1).replace(strElem,value);
+            inputElem.value = str;
             //если вводится обычное целочисленое значение - добавить в конец строки
           } else {
-            inputElem[0].value += value.replace('/','÷').replace('*','×'); 
+            inputElem.value += value.replace('/','÷').replace('*','×'); 
           }
-        } else {
-          //если в input тольуо 0, то его надо игнорировать и заменять на новый символ, если он не математический
-          if (inputElem[0].value=='0') {
-            inputElem[0].value = value;
+        } else if (patternDot.test(inputElem.value.slice(-1)) && value == '.') {
+          return false;
+        }
+        else {
+          //если в input стоит точка - не добавляем вторую
+          if (patternDot.test(inputElem.value.slice(-1))) {
+            inputElem.value = value;
           } else {
-            inputElem[0].value += value.replace('/','÷').replace('*','×'); 
+            //если в input тольуо 0, то его надо игнорировать и заменять на новый символ, если он не математический
+            if (inputElem.value=='0' && patternDot.test(inputElem.value.slice(-1))) {
+              inputElem.value = value;
+            } else {
+              inputElem.value += value.replace('/','÷').replace('*','×'); 
+            };
           };
         };
       };
@@ -188,16 +238,16 @@ function main(value) {
 //-------------------------------------------------------------
 //уменьшение шрифта, если input переполнен
 function font(inputElem) {
-  var lengthElem = inputElem[0].value.length;
-  if (lengthElem > 13) {
-    inputElem[0].classList.add('font-min');
+  var lengthElem = inputElem.value.length;
+  if (lengthElem > 11) {
+    inputElem.classList.add('font-min');
   };
-  if (lengthElem > 18) {
-    inputElem[0].classList.remove('font-min');
-    inputElem[0].classList.add('font-micro');
+  if (lengthElem > 16) {
+    inputElem.classList.remove('font-min');
+    inputElem.classList.add('font-micro');
   };
-  if (lengthElem < 13) {
-    inputElem[0].classList.remove('font-min');
-    inputElem[0].classList.remove('font-micro');
+  if (lengthElem <= 11) {
+    inputElem.classList.remove('font-min');
+    inputElem.classList.remove('font-micro');
   };
 };
