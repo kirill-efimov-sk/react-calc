@@ -186,14 +186,14 @@ button.active {
   grid-column-end: 5;
   grid-row-start: 4;
   grid-row-end: 5;
-  margin: 10px 0 0 15px;
-  font-size: 18px;
+  margin: 0 0 0 15px;
+  font-size: 16px;
   cursor: pointer;
   color: rgb(65, 145, 182);
   word-wrap: break-word;
   text-overflow: ellipsis;
   white-space: nowrap; 
-  overflow:hidden;
+  overflow: hidden;
 }
 div {
   button.del {
@@ -203,6 +203,11 @@ div {
 .unhover {
   background: rgb(81, 153, 228, 0.51)!important;
 }
+.history::before {
+  content: 'calculations: ';
+  font-size: 15px;
+  color: rgba(131, 81, 212, 0.753);
+};
 
 
 /*изменение стилизации под мобильные устройста*/
@@ -247,7 +252,7 @@ div {
     font-size: 2.9vh;
   }
   .history {
-    font-size: 2.6vh;
+    font-size: 2.2vh;
   }
 };
 
