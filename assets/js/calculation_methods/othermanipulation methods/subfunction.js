@@ -32,7 +32,25 @@ export function subfunction(inputElem, globalObjectPattern, value) {
       if (inputElem.value == '0' && globalObjectPattern.patternDot.test(inputElem.value.slice(-1))) {
         inputElem.value = value;
       } else if (dotLen>=1 && value === '.') {
-        inputElem.value = inputElem.value;
+        // сначала нужно проверить есть ли между операндами оператор
+        var totalLength = inputElem.value.length;
+        var totalStr = inputElem.value.split('');
+        var checkPoint1 = false;
+        var checkPoint2 = true;
+        for (var i = 0; i < totalStr.length; i++) {
+          if (globalObjectPattern.patternNew.test(totalStr[i])) {
+            checkPoint1 = true;
+            checkPoint2 = true;
+          }
+          if (globalObjectPattern.patternDot.test(totalStr[i]) && checkPoint1 == true) {
+            checkPoint2 = false;
+          }
+        };
+        if (checkPoint1 == true && checkPoint2 == true) {
+          inputElem.value += value.replace('/', '÷').replace('*', '×');
+        } else {
+          inputElem.value = inputElem.value;
+        ;}
       }
       else {
         inputElem.value += value.replace('/', '÷').replace('*', '×');
