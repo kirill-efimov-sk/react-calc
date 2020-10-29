@@ -4,6 +4,21 @@ import { font } from '../other_function/font.js';
 // вычисляем значение строки
 // это возможно благодаря методу 'eval' (полезный метод .toFixed(N))
 export function calculate(globalObjectPattern, inputElem, operation, history, storyElem, param) {
+  class Calculation {
+    constructor(operation) {
+      this.value = operation;
+    }
+    makeCalculation() {
+      let calculationValue = eval(operation.replace('÷', '/').replace('×', '*')); 
+      if (!isFinite(calculationValue)) {
+        invalidOperation();
+        return false;
+      } else {
+        inputElem.value = calculationValue;
+        return true;
+      }
+    };
+  };
   if (globalObjectPattern.patternNew.test(inputElem.value)) {
     if (inputElem.value !== '') {
       //если это не деление на ноль
@@ -32,18 +47,15 @@ export function calculate(globalObjectPattern, inputElem, operation, history, st
       let calculationValue = eval(operation.replace('÷', '/').replace('×', '*')).toFixed(5); 
       if (!isFinite(calculationValue)) {
         invalidOperation();
+        return false;
       } else {
         inputElem.value = calculationValue;
-      }
+      };
     }
     else { 
-      let calculationValue = eval(operation.replace('÷', '/').replace('×', '*')); 
-      if (!isFinite(calculationValue)) {
-        invalidOperation();
-      } else {
-        inputElem.value = calculationValue;
-      }
-    }
+      var payment = new Calculation(operation);
+      payment.makeCalculation();
+    };
     font(inputElem);
     history.push(operation.replace('÷', '/').replace('×', '*') + '=' + inputElem.value);
   };
@@ -66,5 +78,5 @@ export function calculate(globalObjectPattern, inputElem, operation, history, st
     inputElem.value = 'недопустимая операция';
     // сохраняем значение поля
     setTimeout(err, 750, oldValue);
-  }
+  };
 };
