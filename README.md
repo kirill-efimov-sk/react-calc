@@ -17,3 +17,12 @@ supported and tested on:
 - Chrome
 - Mozilla Firefox
 - mobile device (android, more 10 mobile device)
+
+
+Checker Input validator.w3.org
+Show sourceoutlineimage report
+
+Check by
+address https://kirill-efimov-sk.github.io/react-calc/react-calc.html
+
+Document checking completed. No errors or warnings to show.
