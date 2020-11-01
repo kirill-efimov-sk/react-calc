@@ -2,7 +2,7 @@
 //основной модуль по вычислениям
 import { calculation } from './calculation.js';
 //regexp выражения
-import { globalParameters } from './calc-global-parameters.js';
+import { globalObjectPattern } from './calc-global-parameters.js';
 //import для работы с размером шрифтов
 import { font } from './other_function/font.js';
 //import для динамичной работы со стилями
@@ -14,7 +14,6 @@ var btns = document.querySelectorAll('button');
 
 (function () {
   //глобальные переменные IIFE
-  var globalObjectPattern = globalParameters();
   var param = false;
   var history = Array();
 
@@ -24,7 +23,16 @@ var btns = document.querySelectorAll('button');
     if (globalObjectPattern.patternNew.test(val)) {
       param = false;
     };
-    if ((globalObjectPattern.patternNew.test(val) || val == '.' && val !== '=' || val == 'Enter' || val.match(/CE|Backspace|C|c|С|с/) || globalObjectPattern.pattern.test(val)) && val.includes('F') == false) {
+    if ((globalObjectPattern.patternNew.test(val)
+      ||
+      val == '.' && val !== '=' || val == 'Enter'
+      ||
+      val.match(/CE|Backspace|C|c|С|с/)
+      ||
+      globalObjectPattern.pattern.test(val))
+      &&
+      val.includes('F') == false
+    ) {
       main(val.replace('Enter', '=').replace('Backspace', 'CE').replace('С', 'C').replace('с', 'C').replace('c', 'C'));
     };
     //DETACH
@@ -33,7 +41,8 @@ var btns = document.querySelectorAll('button');
   //вызов события при клике
   btns.forEach(btns => {
     btns.onclick = function (event) {
-      var path = event || (event.composedPath && event.composedPath());
+      var path = event || (event.composedPath && event.composedPath()) || event.srcElement.innerText;
+      //реализовано для поддержки кроссбраузерности
       try {
         var elem = path.path[0];
         var val = elem.innerText;
@@ -54,12 +63,21 @@ var btns = document.querySelectorAll('button');
   // основная процелура
   // функция принимает значение кнопки или ключ клавиши
   function main(value) {
-    var operation = inputElem.value;
-    var storyElem = document.getElementsByClassName('history');
+    let operation = inputElem.value;
+    let storyElem = document.getElementsByClassName('history');
+    const calcParameters = { value, history, globalObjectPattern, inputElem, param, operation, storyElem }
+
     //уменьшаем шрифт в поле input при переполнении строки
     font(inputElem);
+    //добавляем класс и удаляем для кнопок при нажатии/клике
+    workWithClassListBtns(value);
+    //основная функция, производящая вычисления
+    calculation(calcParameters);
+  };
+  function workWithClassListBtns(value) {
+    let totalBtns = 19; //кол-во кнопок калькулятора
     //переборка кнопок: удаляем стиль active и присваиваем его нажатой кнопке
-    for (var i = 0; i < 19; i++) {
+    for (var i = 0; i < totalBtns; i++) {
       var valueBtns = btns[i].innerText;
       btns[i].classList.remove('active');
       btns[i].classList.remove('unhover');
@@ -74,7 +92,5 @@ var btns = document.querySelectorAll('button');
         break;
       }
     };
-    //основная функция, производящая вычисления
-    calculation(value, history, globalObjectPattern, inputElem, param, operation, storyElem);
-  };
+  }
 })();
