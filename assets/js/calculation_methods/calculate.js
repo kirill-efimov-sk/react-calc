@@ -1,60 +1,38 @@
 //import для работы с размером шрифтов
 import { font } from '../other_function/font.js';
-// пробуем выполнить операцию
-// вычисляем значение строки
-// это возможно благодаря методу 'eval' (полезный метод .toFixed(N))
-export function calculate(globalObjectPattern, inputElem, operation, history, storyElem, param) {
-  class Calculation {
-    constructor(operation) {
-      this.value = operation;
+
+class Calculation {
+  constructor(operation) {
+    this.value = operation;
+  }
+  getCalculation(inputElem) {
+    let calculationValue = eval(this.value.replace('÷', '/').replace('×', '*'));
+    if (isFinite(calculationValue)) {
+      inputElem.value = calculationValue;
+    } else {
+      invalidOperation();
     }
-    makeCalculation() {
-      let calculationValue = eval(operation.replace('÷', '/').replace('×', '*')); 
-      if (!isFinite(calculationValue)) {
-        invalidOperation();
-        return false;
-      } else {
-        inputElem.value = calculationValue;
-        return true;
-      }
-    };
   };
-  if (globalObjectPattern.patternNew.test(inputElem.value)) {
-    if (inputElem.value !== '') {
-      //если это не деление на ноль
-      if (!inputElem.value.includes('÷0')) {
-        divisionByZero();
-      } else {
-        if (inputElem.value.slice(-2) == '÷0') {
-          invalidOperation();
-        } else {
-          divisionByZero();
-        };
-      };
-      workWithHistory();
-    } else { inputElem.value = '';};
-    param = true;
-  } else {
-    return false;
-  };
+};
+
+export function calculate(globalObjectPattern, inputElem, operation, history, storyElem, param) {
   //вызов функции после исключения
   function err(oldValue) {
     inputElem.classList.remove('font-micro');
     inputElem.value = oldValue;
   };
   function divisionByZero() {
-    if (globalObjectPattern.patternDot.test(inputElem.value.slice(-1))) { 
-      let calculationValue = eval(operation.replace('÷', '/').replace('×', '*')).toFixed(5); 
-      if (!isFinite(calculationValue)) {
-        invalidOperation();
-        return false;
-      } else {
+    if (globalObjectPattern.patternDot.test(inputElem.value.slice(-1))) {
+      let calculationValue = eval(operation.replace('÷', '/').replace('×', '*')).toFixed(5);
+      if (isFinite(calculationValue)) {
         inputElem.value = calculationValue;
+      } else {
+        invalidOperation();
       };
     }
-    else { 
+    else {
       var payment = new Calculation(operation);
-      payment.makeCalculation();
+      payment.getCalculation(inputElem);
     };
     font(inputElem);
     history.push(operation.replace('÷', '/').replace('×', '*') + '=' + inputElem.value);
@@ -73,10 +51,28 @@ export function calculate(globalObjectPattern, inputElem, operation, history, st
     };
   };
   function invalidOperation() {
-    var oldValue = inputElem.value;
+    let oldValue = inputElem.value;
     inputElem.classList.add('font-micro');
     inputElem.value = 'недопустимая операция';
     // сохраняем значение поля
     setTimeout(err, 750, oldValue);
+  };
+  if (globalObjectPattern.patternNew.test(inputElem.value)) {
+    if (inputElem.value !== '') {
+      //если это не деление на ноль
+      if (inputElem.value.includes('÷0')) {
+        if (inputElem.value.slice(-2) == '÷0') {
+          invalidOperation();
+        } else {
+          divisionByZero();
+        };
+      } else {
+        divisionByZero();
+      };
+      workWithHistory();
+    } else {
+      inputElem.value = '';
+    };
+    param = true;
   };
 };

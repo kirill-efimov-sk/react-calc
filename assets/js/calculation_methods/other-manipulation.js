@@ -4,15 +4,25 @@ import { changeSymbol } from './othermanipulation methods/changeSymbol.js';
 import { subfunction } from './othermanipulation methods/subfunction.js';
 
 export function other_manipulation(value, globalObjectPattern, inputElem, param) {
+  function changeAll() {
+    if (value == '±') {
+      changeSymbol(arrayStr, inputElem, arrayLen, endNumber);
+      // Если это не ±, то здесь вводим все символы в input
+    } else {
+      subfunction(inputElem, globalObjectPattern, value);
+    };
+  };
   var arrayStr = inputElem.value.split('');
   var arrayLen = arrayStr.length;
   var indexes = [];
   if (arrayLen > 0) {
+    //для работы с -
     var indexSbtrY = arrayStr.indexOf('-');
     while (indexSbtrY != -1) { // пока значение переменной index не будет равно -1
       indexes.push(indexSbtrY); // с использованием метода push() добавляем в переменную indexes значение переменной index
       indexSbtrY = arrayStr.indexOf('-', indexSbtrY + 1); // изменяем значение переменной путем поиска необходимого элемента далее в массиве (если найден - индекс элемента, если нет то -1)
     }
+    //для работы с +
     var indexSbtrP = arrayStr.indexOf('+');
     while (indexSbtrP != -1) { // пока значение переменной index не будет равно -1
       indexes.push(indexSbtrP); // с использованием метода push() добавляем в переменную indexes значение переменной index
@@ -50,13 +60,5 @@ export function other_manipulation(value, globalObjectPattern, inputElem, param)
     // если равно в прошлой операции не выбиралось (если нажато равно param = true)
     // если пользователь решил изменить символ с + на - или наоборот
     changeAll();
-  };
-  function changeAll() {
-    if (value == '±') {
-      changeSymbol(arrayStr, inputElem, arrayLen, endNumber);
-      // Если это не ±, то здесь вводим все символы в input
-    } else {
-      subfunction(inputElem, globalObjectPattern, value);
-    };
   };
 };
