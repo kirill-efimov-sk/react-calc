@@ -16,4 +16,4 @@ export function font(inputElem) {
     inputElem.classList.remove('font-min');
     inputElem.classList.remove('font-micro');
   };
-  };
+};
